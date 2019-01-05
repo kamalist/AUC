@@ -10,5 +10,6 @@ The tool makes only formatting in the Ancient Romans' style, usual Gregorian cal
 
 # Example of output
   $ ./auc
+
   Non. Ian., MMDCCLXXII AUC
 
