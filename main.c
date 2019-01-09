@@ -11,12 +11,13 @@
 struct conf {
 	bool cur_time;
 	struct tm t_struct; //not used if cur_time = true
+	bool christian;
 };
 
 void parse_args (struct conf * config, int argc, char * argv[]) {
 	int c;
 	char * tmp;
-	while ((c = getopt (argc, argv, "d:")) != -1) {
+	while ((c = getopt (argc, argv, "cd:")) != -1) {
 		switch (c){
 			case 'd':
 				tmp = strptime (optarg, "%d/%m/%Y", &config->t_struct);
@@ -25,6 +26,9 @@ void parse_args (struct conf * config, int argc, char * argv[]) {
 					exit (EXIT_FAILURE);
 				}
 				config->cur_time = false;
+				break;
+			case 'c':
+				config->christian = true;
 				break;
 		}
 	}
@@ -43,31 +47,37 @@ void print_day (struct conf * c) {
 	int y = c->t_struct.tm_year + 1900;
 	char buf[100];
 	if (roman_day (d, m, y, buf, 100)){
-		printf ("%s, ", buf);
+		printf ("%s", buf);
 	} else {
 		printf ("Date %d/%d/%d is invalid\n", d, m, y);
 		exit (EXIT_FAILURE);
 	}
 }
 
+char * epoch[] = {"%s AUC", "%s p. Chr. n"};
 void print_year (struct conf * c) {
 	int y = c->t_struct.tm_year + 1900;
+	if (!c->christian) y += 753; //Roman epoch
+	int epoch_num = c->christian?1:0;
 	char buf[100];
-	if (roman_numeral (y + 753, buf, 100) > 0) {
-		printf ("%s AUC\n", buf);
+	if (roman_numeral (y, buf, 100) > 0) {
+		printf (epoch[epoch_num], buf);
 	}
 	else {
-		printf ("year unrecognized (val. %d)\n", y);
+		printf ("year unrecognized (val. %d)\n", c->christian?y:y - 753);
 		exit (EXIT_FAILURE);
 	}
 }
 int main (int argc, char * argv[]){
 	struct conf config = {
 		.cur_time = true,
+		.christian = false,
 	};
 	parse_args (&config, argc, argv);
 	fill_date (&config);
 	print_day (&config);
+	printf (", ");
 	print_year (&config);
+	printf ("\n");
 	return EXIT_SUCCESS;
 }
