@@ -1,4 +1,5 @@
 #define _XOPEN_SOURCE
+#include <getopt.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -17,7 +18,13 @@ struct conf {
 void parse_args (struct conf * config, int argc, char * argv[]) {
 	int c;
 	char * tmp;
-	while ((c = getopt (argc, argv, "cd:")) != -1) {
+	struct option long_options[] = {
+	           {"chr",               no_argument,       0,  'c' },
+	           {"christian",         no_argument,       0,  'c' },
+	           {"date",              required_argument, 0,  'd' },
+	           {0, 0, 0, 0}
+	};
+	while ((c = getopt_long (argc, argv, "cd:", long_options, NULL)) != -1) {
 		switch (c){
 			case 'd':
 				tmp = strptime (optarg, "%d/%m/%Y", &config->t_struct);
